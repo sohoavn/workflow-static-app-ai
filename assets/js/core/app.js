@@ -228,11 +228,11 @@ class App {
 class Router {
   constructor() {
     this.routes = {
-      '': 'pages/designer.html',
-      'designer': 'pages/designer.html',
-      'generator': 'pages/generator.html',
-      'library': 'pages/library.html',
-      'settings': 'pages/settings.html'
+      '': './pages/designer.html',
+      'designer': './pages/designer.html',
+      'generator': './pages/generator.html',
+      'library': './pages/library.html',
+      'settings': './pages/settings.html'
     };
     
     this.currentPage = null;
