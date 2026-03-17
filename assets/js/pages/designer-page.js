@@ -63,46 +63,82 @@ class DesignerPage {
 
   attachEventListeners() {
     // Expert selector
-    document.getElementById('expert-selector').addEventListener('change', (e) => {
-      this.currentExpert = e.target.value;
-      this.updateExpertDescription();
-    });
+    const expertSelector = document.getElementById('expert-selector');
+    console.log('🔍 Expert selector found:', !!expertSelector);
+    if (expertSelector) {
+      expertSelector.addEventListener('change', (e) => {
+        this.currentExpert = e.target.value;
+        this.updateExpertDescription();
+      });
+    }
 
     // Chat form
-    document.getElementById('chat-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      this.generateWorkflow();
-    });
+    const chatForm = document.getElementById('chat-form');
+    console.log('🔍 Chat form found:', !!chatForm);
+    if (chatForm) {
+      chatForm.addEventListener('submit', (e) => {
+        console.log('📝 Form submitted!');
+        e.preventDefault();
+        this.generateWorkflow();
+      });
+      console.log('✅ Form submit listener attached');
+    } else {
+      console.error('❌ Chat form not found!');
+    }
 
     // Clear chat
-    document.getElementById('btn-clear-chat').addEventListener('click', () => {
-      this.clearChat();
-    });
+    const clearBtn = document.getElementById('btn-clear-chat');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        console.log('🗑️ Clear chat clicked');
+        this.clearChat();
+      });
+    }
 
     // Use example
-    document.getElementById('btn-use-example').addEventListener('click', () => {
-      this.useExample();
-    });
+    const exampleBtn = document.getElementById('btn-use-example');
+    if (exampleBtn) {
+      exampleBtn.addEventListener('click', () => {
+        console.log('💡 Use example clicked');
+        this.useExample();
+      });
+    }
 
     // Regenerate
-    document.getElementById('btn-regenerate').addEventListener('click', () => {
-      this.regenerateWorkflow();
-    });
+    const regenBtn = document.getElementById('btn-regenerate');
+    if (regenBtn) {
+      regenBtn.addEventListener('click', () => {
+        console.log('🔄 Regenerate clicked');
+        this.regenerateWorkflow();
+      });
+    }
 
     // View JSON
-    document.getElementById('btn-view-json').addEventListener('click', () => {
-      this.viewJSON();
-    });
+    const viewJsonBtn = document.getElementById('btn-view-json');
+    if (viewJsonBtn) {
+      viewJsonBtn.addEventListener('click', () => {
+        console.log('📄 View JSON clicked');
+        this.viewJSON();
+      });
+    }
 
     // Save workflow
-    document.getElementById('btn-save-workflow').addEventListener('click', () => {
-      this.saveWorkflow();
-    });
+    const saveBtn = document.getElementById('btn-save-workflow');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        console.log('💾 Save workflow clicked');
+        this.saveWorkflow();
+      });
+    }
 
     // Export JSON
-    document.getElementById('btn-export-json').addEventListener('click', () => {
-      this.exportWorkflow();
-    });
+    const exportBtn = document.getElementById('btn-export-json');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        console.log('📦 Export clicked');
+        this.exportWorkflow();
+      });
+    }
 
     // Modal close buttons
     document.getElementById('btn-close-modal')?.addEventListener('click', () => {
@@ -134,8 +170,11 @@ class DesignerPage {
   }
 
   async generateWorkflow() {
+    console.log('🚀 generateWorkflow() called');
     const input = document.getElementById('chat-input');
-    const userMessage = input.value.trim();
+    console.log('🔍 Input element:', !!input);
+    const userMessage = input ? input.value.trim() : '';
+    console.log('📝 User message:', userMessage);
 
     if (!userMessage) {
       console.warn('⚠️ Empty message, skipping generation');

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Form Handler Test</title>
+</head>
+<body>
+  <h1>Testing Form Submit Handler</h1>
+  <button id="test-btn">Run Test</button>
+  <pre id="output"></pre>
+
+  <script>
+    document.getElementById('test-btn').addEventListener('click', async () => {
+      const output = document.getElementById('output');
+      output.textContent = 'Testing...\n';
+      
+      // Open the designer page in a new window
+      const win = window.open('https://sohoavn.github.io/workflow-static-app-ai/#designer', '_blank');
+      
+      setTimeout(() => {
+        output.textContent += 'Check the console in the opened window!\n';
+        output.textContent += 'Manually fill the textarea and click Generate.\n';
+        output.textContent += 'Watch console for logs starting with ✅, 🔑, or ❌\n';
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
