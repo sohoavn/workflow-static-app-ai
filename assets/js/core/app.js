@@ -3,6 +3,9 @@
  * Workflow-as-App Platform v1.0
  */
 
+// Import NotificationManager
+import NotificationManager from '../utils/notification.js';
+
 class App {
   constructor() {
     this.version = '1.0.0';
@@ -13,6 +16,12 @@ class App {
     console.log(`🚀 Workflow-as-App Platform v${this.version}`);
     
     try {
+      // Initialize notification manager globally
+      if (!window.notificationManager) {
+        window.notificationManager = new NotificationManager();
+        console.log('✅ Notification Manager initialized');
+      }
+      
       // Check dependencies
       if (!this.checkDependencies()) {
         return;
