@@ -86,8 +86,9 @@
 
 <script>
 // Inline Settings Page Logic (no ES modules)
+// Wait for page navigation to complete
 (function() {
-  console.log('⚙️ Initializing Settings Page (inline)');
+  console.log('⚙️ Settings Page Script Loaded');
   
   // Simple API Key Manager (inline)
   const API_KEYS_STORAGE_KEY = 'gemini_api_keys';
@@ -118,6 +119,7 @@
   }
   
   function showToast(message, type = 'success') {
+    console.log(`🍞 Toast: ${message} (${type})`);
     if (window.notificationManager) {
       if (type === 'success') {
         window.notificationManager.success(message);
@@ -128,13 +130,20 @@
       }
     } else {
       // Fallback alert
+      console.warn('⚠️ NotificationManager not found, using alert');
       alert(message);
     }
   }
   
   function renderKeys() {
     const container = document.getElementById('api-keys-list');
+    if (!container) {
+      console.error('❌ Container #api-keys-list not found');
+      return;
+    }
+    
     const keys = getKeys();
+    console.log(`📋 Rendering ${keys.length} keys`);
     
     if (keys.length === 0) {
       container.innerHTML = `
@@ -172,20 +181,33 @@
   
   function updateStats() {
     const keys = getKeys();
-    document.getElementById('stat-total').textContent = keys.length;
-    document.getElementById('stat-active').textContent = keys.length;
-    document.getElementById('stat-exceeded').textContent = '0';
-    document.getElementById('stat-requests').textContent = '0';
+    const statTotal = document.getElementById('stat-total');
+    const statActive = document.getElementById('stat-active');
+    const statExceeded = document.getElementById('stat-exceeded');
+    const statRequests = document.getElementById('stat-requests');
+    
+    if (statTotal) statTotal.textContent = keys.length;
+    if (statActive) statActive.textContent = keys.length;
+    if (statExceeded) statExceeded.textContent = '0';
+    if (statRequests) statRequests.textContent = '0';
   }
   
   function addKey(e) {
     e.preventDefault();
+    console.log('🔑 Add Key button clicked');
     
     const keyInput = document.getElementById('api-key-input');
     const nicknameInput = document.getElementById('api-key-nickname');
     
+    if (!keyInput) {
+      console.error('❌ Input #api-key-input not found');
+      return;
+    }
+    
     const key = keyInput.value.trim();
-    const nickname = nicknameInput.value.trim();
+    const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+    
+    console.log(`📝 Adding key: ${key.substring(0, 10)}... (nickname: ${nickname})`);
     
     if (!key) {
       showToast('Please enter an API key', 'error');
@@ -206,26 +228,32 @@
     }
     
     // Add new key
-    keys.push({
+    const newKey = {
       id: Date.now().toString(),
       key: key,
       nickname: nickname || `Key ${keys.length + 1}`,
       addedAt: new Date().toISOString(),
       quotaExceeded: false,
       requestCount: 0
-    });
+    };
+    
+    keys.push(newKey);
+    console.log('✅ New key object:', newKey);
     
     if (saveKeys(keys)) {
-      showToast('API key added successfully! ✓', 'success');
+      console.log('✅ Key saved to localStorage');
+      showToast('✓ API key added successfully!', 'success');
       keyInput.value = '';
-      nicknameInput.value = '';
+      if (nicknameInput) nicknameInput.value = '';
       renderKeys();
     } else {
+      console.error('❌ Failed to save keys');
       showToast('Failed to save API key', 'error');
     }
   }
   
   window.deleteKey = function(index) {
+    console.log(`🗑️ Delete key at index ${index}`);
     if (!confirm('Are you sure you want to delete this API key?')) {
       return;
     }
@@ -241,12 +269,57 @@
     }
   };
   
-  // Initialize
-  const form = document.getElementById('add-key-form');
-  if (form) {
-    form.addEventListener('submit', addKey);
-    renderKeys();
-    console.log('✅ Settings page initialized (inline mode)');
+  // Initialize function
+  function initSettings() {
+    console.log('🚀 Initializing Settings Page...');
+    
+    // Wait a bit for DOM to be ready
+    setTimeout(() => {
+      const form = document.getElementById('add-key-form');
+      const container = document.getElementById('api-keys-list');
+      
+      console.log('🔍 DOM Check:');
+      console.log('  - Form:', form ? '✓ Found' : '✗ NOT FOUND');
+      console.log('  - Container:', container ? '✓ Found' : '✗ NOT FOUND');
+      console.log('  - NotificationManager:', window.notificationManager ? '✓ Found' : '✗ NOT FOUND');
+      
+      if (form) {
+        form.addEventListener('submit', addKey);
+        console.log('✅ Form event listener attached');
+      } else {
+        console.error('❌ Form #add-key-form not found! Cannot attach event listener.');
+      }
+      
+      if (container) {
+        renderKeys();
+        console.log('✅ Settings page initialized successfully');
+      } else {
+        console.error('❌ Container not found! Page may not be loaded yet.');
+      }
+      
+      // Test notification
+      if (window.notificationManager) {
+        setTimeout(() => {
+          window.notificationManager.info('⚙️ Settings page ready!');
+        }, 500);
+      }
+    }, 100); // Wait 100ms for DOM
+  }
+  
+  // Listen for page-loaded event from router
+  window.addEventListener('page-loaded', function(e) {
+    if (e.detail.page === 'settings') {
+      console.log('📄 Page-loaded event received for settings');
+      initSettings();
+    }
+  });
+  
+  // Also try immediate init (in case event already fired)
+  if (document.getElementById('add-key-form')) {
+    console.log('📄 Form already present, initializing immediately');
+    initSettings();
+  } else {
+    console.log('⏳ Form not present yet, waiting for page-loaded event...');
   }
 })();
 </script>
