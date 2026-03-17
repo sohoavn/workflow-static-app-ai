@@ -260,7 +260,9 @@ class GeminiClient {
   async generateContentStream(prompt, onChunk, modelName = null, config = {}) {
     const model = modelName || this.defaultModel;
     const apiKey = this.apiKeyManager.getNextKey();
-    const url = `${this.baseUrl}/models/${model}:streamGenerateContent?key=${apiKey}`;
+    
+    // Use correct endpoint with alt=sse for streaming
+    const url = `${this.baseUrl}/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
     
     const defaultConfig = {
       temperature: 0.7,
@@ -273,6 +275,7 @@ class GeminiClient {
     
     try {
       console.log(`🤖 Streaming content with ${model}...`);
+      console.log(`📍 URL: ${url.replace(apiKey, 'API_KEY_HIDDEN')}`);
       
       const response = await fetch(url, {
         method: 'POST',
@@ -292,9 +295,16 @@ class GeminiClient {
       }
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.error?.message || response.statusText;
-        throw new Error(`API error: ${errorMessage}`);
+        const errorText = await response.text();
+        console.error('❌ API Error Response:', errorText);
+        let errorMessage = response.statusText;
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error?.message || errorMessage;
+        } catch (e) {
+          // Error text is not JSON
+        }
+        throw new Error(`API error (${response.status}): ${errorMessage}`);
       }
 
       const reader = response.body.getReader();
@@ -309,35 +319,48 @@ class GeminiClient {
         
         buffer += decoder.decode(value, { stream: true });
         
-        // Split by newlines to process complete JSON objects
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || ''; // Keep incomplete line in buffer
+        // Split by double newlines (SSE events are separated by \n\n)
+        const events = buffer.split('\n\n');
+        buffer = events.pop() || ''; // Keep incomplete event in buffer
         
-        for (const line of lines) {
-          const trimmedLine = line.trim();
-          if (!trimmedLine || trimmedLine === ',') continue;
+        for (const event of events) {
+          const lines = event.split('\n');
           
-          try {
-            const json = JSON.parse(trimmedLine);
-            const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+          for (const line of lines) {
+            const trimmedLine = line.trim();
             
-            if (text) {
-              fullText += text;
-              if (onChunk) {
-                onChunk(text);
+            // SSE format: "data: {...}"
+            if (trimmedLine.startsWith('data:')) {
+              const jsonStr = trimmedLine.substring(5).trim(); // Remove "data:" prefix
+              
+              if (jsonStr === '[DONE]') {
+                console.log('✅ Stream completed');
+                continue;
+              }
+              
+              try {
+                const json = JSON.parse(jsonStr);
+                const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (text) {
+                  fullText += text;
+                  if (onChunk) {
+                    onChunk(text);
+                  }
+                }
+              } catch (e) {
+                console.debug('Skipped invalid JSON:', jsonStr.substring(0, 100));
               }
             }
-          } catch (e) {
-            // Skip invalid JSON lines
-            console.debug('Skipped invalid JSON line:', trimmedLine);
           }
         }
       }
 
       // Process remaining buffer
-      if (buffer.trim()) {
+      if (buffer.trim() && buffer.includes('data:')) {
         try {
-          const json = JSON.parse(buffer);
+          const jsonStr = buffer.substring(buffer.indexOf('data:') + 5).trim();
+          const json = JSON.parse(jsonStr);
           const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
           if (text) {
             fullText += text;
@@ -346,7 +369,7 @@ class GeminiClient {
             }
           }
         } catch (e) {
-          console.debug('Skipped final buffer:', buffer);
+          console.debug('Skipped final buffer');
         }
       }
 
