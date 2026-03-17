@@ -160,6 +160,10 @@ class DesignerPage {
       // Build prompt based on expert domain
       const prompt = this.buildPrompt(userMessage);
 
+      // Get selected model from settings (default: gemini-1.5-pro)
+      const selectedModel = localStorage.getItem('gemini_selected_model') || 'gemini-1.5-pro';
+      console.log(`🤖 Using model: ${selectedModel}`);
+
       // Generate with streaming
       let fullResponse = '';
       await this.geminiClient.generateContentStream(
@@ -168,7 +172,7 @@ class DesignerPage {
           fullResponse += chunk;
           this.updateChatMessage(loadingId, fullResponse);
         },
-        'gemini-1.5-pro'
+        selectedModel
       );
 
       // Parse workflow from response

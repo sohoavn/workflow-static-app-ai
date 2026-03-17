@@ -211,6 +211,28 @@
       console.error('❌ Container not found! Page may not be loaded yet.');
     }
     
+    // Model management
+    const refreshBtn = document.getElementById('btn-refresh-models');
+    const modelSelector = document.getElementById('model-selector');
+    
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        console.log('🔄 Refreshing models...');
+        loadModels();
+      });
+      console.log('✅ Refresh models button attached');
+    }
+    
+    if (modelSelector) {
+      modelSelector.addEventListener('change', (e) => {
+        selectModel(e.target.value);
+      });
+      console.log('✅ Model selector attached');
+    }
+    
+    // Auto-load models
+    loadModels();
+    
     // Test notification
     if (window.notificationManager) {
       setTimeout(() => {
@@ -219,11 +241,210 @@
     }
   }
   
+  // ============================================
+  // MODEL MANAGEMENT
+  // ============================================
+  
+  const SELECTED_MODEL_KEY = 'gemini_selected_model';
+  let availableModels = [];
+  
+  async function loadModels() {
+    const container = document.getElementById('models-list');
+    const selector = document.getElementById('model-selector');
+    const statsDiv = document.getElementById('model-stats');
+    
+    if (!container || !selector) {
+      console.warn('⚠️ Model UI elements not found');
+      return;
+    }
+    
+    try {
+      container.innerHTML = '<div class="text-center py-4"><div class="animate-pulse">Fetching models from Gemini API...</div></div>';
+      
+      // Get API key to fetch models
+      const keys = getKeys();
+      if (keys.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-gray-500"><p>⚠️ Please add an API key first to fetch models</p></div>';
+        return;
+      }
+      
+      const apiKey = keys[0].key;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Filter models that support generateContent
+      availableModels = data.models
+        .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+        .map(m => ({
+          name: m.name.replace('models/', ''),
+          displayName: m.displayName,
+          description: m.description,
+          inputLimit: m.inputTokenLimit,
+          outputLimit: m.outputTokenLimit
+        }));
+      
+      console.log(`✅ Loaded ${availableModels.length} models`);
+      
+      // Render models
+      renderModels();
+      
+      // Show stats
+      if (statsDiv) {
+        statsDiv.style.display = 'block';
+      }
+      
+      showToast(`Loaded ${availableModels.length} models successfully!`, 'success');
+      
+    } catch (error) {
+      console.error('Failed to load models:', error);
+      container.innerHTML = `
+        <div class="text-center py-8 text-red-600">
+          <p class="font-medium">❌ Failed to load models</p>
+          <p class="text-sm mt-2">${error.message}</p>
+          <button onclick="window.SettingsPage.refreshModels()" class="btn btn-sm btn-secondary mt-4">Retry</button>
+        </div>
+      `;
+    }
+  }
+  
+  function renderModels() {
+    const container = document.getElementById('models-list');
+    const selector = document.getElementById('model-selector');
+    
+    if (!container || !selector) return;
+    
+    if (availableModels.length === 0) {
+      container.innerHTML = '<div class="text-center py-8 text-gray-500">No models available</div>';
+      return;
+    }
+    
+    // Get current selected model
+    const selectedModel = localStorage.getItem(SELECTED_MODEL_KEY) || 'gemini-1.5-pro';
+    
+    // Update selector
+    selector.innerHTML = availableModels.map(model => 
+      `<option value="${model.name}" ${model.name === selectedModel ? 'selected' : ''}>
+        ${model.displayName || model.name}
+      </option>`
+    ).join('');
+    
+    // Render model cards with ratings
+    container.innerHTML = availableModels.map(model => {
+      const rating = getModelRating(model.name);
+      const isSelected = model.name === selectedModel;
+      
+      return `
+        <div class="border rounded-lg p-4 ${isSelected ? 'border-blue-500 bg-blue-50' : 'bg-white hover:border-gray-400'}">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <h4 class="font-semibold text-gray-900">${model.displayName || model.name}</h4>
+                ${isSelected ? '<span class="badge badge-primary text-xs">Current</span>' : ''}
+                ${rating.badge}
+              </div>
+              
+              <p class="text-sm text-gray-600 mt-2">${model.description || 'No description'}</p>
+              
+              <div class="flex gap-4 mt-3 text-xs text-gray-500">
+                <span>📥 Input: ${formatTokenLimit(model.inputLimit)}</span>
+                <span>📤 Output: ${formatTokenLimit(model.outputLimit)}</span>
+              </div>
+              
+              <div class="mt-3 text-xs">
+                <span class="text-gray-700">⭐ ${rating.stars}</span>
+                <span class="text-gray-500 ml-2">${rating.description}</span>
+              </div>
+            </div>
+            
+            ${!isSelected ? `
+              <button onclick="window.SettingsPage.selectModel('${model.name}')" class="btn btn-sm btn-secondary">
+                Select
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  
+  function getModelRating(modelName) {
+    const ratings = {
+      'gemini-1.5-pro': {
+        stars: '⭐⭐⭐⭐⭐',
+        badge: '<span class="badge badge-success text-xs">🏆 Best Quality</span>',
+        description: 'Highest accuracy and capability'
+      },
+      'gemini-1.5-pro-002': {
+        stars: '⭐⭐⭐⭐⭐',
+        badge: '<span class="badge badge-success text-xs">🏆 Best Quality</span>',
+        description: 'Latest version with improved performance'
+      },
+      'gemini-1.5-flash': {
+        stars: '⭐⭐⭐⭐',
+        badge: '<span class="badge badge-primary text-xs">⚡ Fast</span>',
+        description: 'Great balance of speed and quality'
+      },
+      'gemini-1.5-flash-002': {
+        stars: '⭐⭐⭐⭐',
+        badge: '<span class="badge badge-primary text-xs">⚡ Fast</span>',
+        description: 'Latest fast model with improved performance'
+      },
+      'gemini-1.5-flash-8b': {
+        stars: '⭐⭐⭐',
+        badge: '<span class="badge badge-secondary text-xs">💰 Economical</span>',
+        description: 'Most cost-effective option'
+      }
+    };
+    
+    return ratings[modelName] || {
+      stars: '⭐⭐⭐',
+      badge: '',
+      description: 'Standard model'
+    };
+  }
+  
+  function formatTokenLimit(limit) {
+    if (limit >= 1000000) {
+      return `${(limit / 1000000).toFixed(1)}M`;
+    }
+    if (limit >= 1000) {
+      return `${(limit / 1000).toFixed(0)}K`;
+    }
+    return limit.toString();
+  }
+  
+  function selectModel(modelName) {
+    console.log(`🎯 Selecting model: ${modelName}`);
+    localStorage.setItem(SELECTED_MODEL_KEY, modelName);
+    renderModels();
+    
+    // Update selector
+    const selector = document.getElementById('model-selector');
+    if (selector) {
+      selector.value = modelName;
+    }
+    
+    showToast(`Model changed to ${modelName}`, 'success');
+  }
+  
+  // ============================================
+  // END MODEL MANAGEMENT
+  // ============================================
+  
   // Export to window for global access
   window.SettingsPage = {
     init: init,
     deleteKey: deleteKey,
-    getKeys: getKeys
+    getKeys: getKeys,
+    loadModels: loadModels,
+    refreshModels: loadModels,
+    selectModel: selectModel
   };
   
   // Auto-init if DOM is ready
