@@ -1,181 +1,266 @@
-# 🚀 HƯỚNG DẪN PUSH CODE LÊN GITHUB
+# 📦 Hướng Dẫn Push Code lên GitHub Repository
 
-## 📦 Bạn có 2 tùy chọn:
+## ✅ Bước 1: Tải Bundle về máy tính của bạn
+
+Bundle file đã được tạo tại sandbox, bạn cần tải về:
+
+```
+📦 File: workflow-app-wave1-final.tar.gz (133 KB)
+📍 Location: /tmp/workflow-app-wave1-final.tar.gz
+```
+
+**Tải file này về máy tính của bạn** (file sẽ được cung cấp qua link download)
 
 ---
 
-## ✅ OPTION 1: TẢI BUNDLE VÀ PUSH (KHUYẾN NGHỊ)
+## ✅ Bước 2: Giải nén Bundle
 
-### Bước 1: Tải bundle
+Trên máy tính của bạn, mở Terminal/Command Prompt và chạy:
 
-Bundle đã được tạo tại sandbox: `/tmp/workflow-app-wave1-complete.tar.gz` (123KB)
+### macOS / Linux:
+```bash
+# Giải nén file
+tar -xzf workflow-app-wave1-final.tar.gz
 
-**Để tải về máy của bạn:**
-- Sử dụng file manager của sandbox environment
-- Hoặc tôi sẽ cung cấp link download
+# Di chuyển vào thư mục
+cd workflow-app
+```
 
-### Bước 2: Giải nén và push
+### Windows (dùng Git Bash hoặc PowerShell):
+```bash
+# Giải nén (có thể dùng 7-Zip hoặc WinRAR)
+# Sau đó mở thư mục bằng File Explorer
+cd workflow-app
+```
+
+---
+
+## ✅ Bước 3: Clone Repository từ GitHub
 
 ```bash
-# Trên máy local của bạn
-cd ~/Downloads
-tar -xzf workflow-app-wave1-complete.tar.gz -C workflow-static-app
-cd workflow-static-app
+# Clone repo của bạn
+git clone https://github.com/sohoavn/workflow-static-app-ai.git
 
-# Check files
+# Di chuyển vào thư mục repo
+cd workflow-static-app-ai
+```
+
+---
+
+## ✅ Bước 4: Sao chép files từ Bundle vào Repo
+
+```bash
+# Sao chép tất cả files từ workflow-app sang repo
+cp -r ../workflow-app/* .
+
+# Kiểm tra files đã được copy
 ls -la
+```
+
+**Files bạn sẽ thấy:**
+```
+📂 workflow-static-app-ai/
+├── 📄 index.html                 # Main entry point
+├── 📄 README.md                  # Tài liệu hướng dẫn
+├── 📄 .gitignore                 # Git ignore rules
+├── 📄 WAVE1_SUMMARY.md          # Báo cáo Wave 1
+├── 📄 PUSH_GUIDE.md             # File này
+│
+├── 📁 assets/
+│   ├── 📁 css/
+│   │   └── main.css             # Main stylesheet
+│   ├── 📁 js/
+│   │   ├── 📁 core/
+│   │   │   ├── app.js           # Main app logic
+│   │   │   ├── api-key-manager.js    # Multi API key manager
+│   │   │   ├── gemini-client.js      # Gemini AI client
+│   │   │   └── storage-manager.js    # Storage handler
+│   │   └── 📁 utils/
+│   │       ├── notification.js       # Toast notifications
+│   │       └── file-handler.js       # File import/export
+│   └── 📁 templates/
+│       └── workflow-schema.json      # Workflow JSON schema
+│
+├── 📁 pages/
+│   ├── designer.html            # AI Workflow Designer
+│   ├── generator.html           # Code Generator
+│   ├── library.html             # Workflow Library
+│   └── settings.html            # Settings page
+│
+├── 📁 examples/
+│   └── workflow-example.json    # Sample workflow
+│
+└── 📁 docs/
+    └── (documentation files)
+```
+
+---
+
+## ✅ Bước 5: Commit và Push lên GitHub
+
+```bash
+# Kiểm tra trạng thái Git
+git status
+
+# Add tất cả files
+git add .
+
+# Commit với message
+git commit -m "feat: Wave 1 - Core Infrastructure Complete
+
+✅ Implemented:
+- Multi API Key Manager with rotation
+- Gemini AI Client with streaming
+- Storage Manager (localStorage + IndexedDB)
+- Toast Notification System
+- File Handler (JSON/MD/ZIP export)
+- Designer Page (AI Chat + Preview)
+- Generator Page (Code Generation)
+- Library Page (Template Management)
+- Settings Page (API Key Config)
+
+📊 Stats:
+- 6 commits
+- 4,619 lines of code
+- 13 core files implemented
+- 100% Wave 1 complete"
 
 # Push lên GitHub
-git remote add origin https://github.com/sohoavn/workflow-static-app-ai.git
-git branch -M main
-git push -u origin main --force
+git push -u origin main
 ```
 
-**Note:** Dùng `--force` vì local history khác với remote
-
----
-
-## ✅ OPTION 2: CLONE VÀ TẠO FILES THỦ CÔNG
-
-Nếu không thể download bundle:
-
-### Bước 1: Clone repo
-
+**Nếu gặp lỗi conflict:**
 ```bash
-git clone https://github.com/sohoavn/workflow-static-app-ai.git
-cd workflow-static-app-ai
+# Pull changes từ remote trước
+git pull origin main --rebase
+
+# Sau đó push lại
+git push -u origin main
 ```
 
-### Bước 2: Tạo file structure
+---
 
+## ✅ Bước 6: Kích hoạt GitHub Pages
+
+1. Truy cập: https://github.com/sohoavn/workflow-static-app-ai
+2. Vào **Settings** → **Pages**
+3. Chọn **Source**: Deploy from a branch
+4. Chọn **Branch**: `main` → folder: `/ (root)`
+5. Click **Save**
+
+GitHub sẽ deploy sau **1-2 phút**. URL của bạn sẽ là:
+
+```
+🌐 https://sohoavn.github.io/workflow-static-app-ai/
+```
+
+---
+
+## ✅ Bước 7: Kiểm tra Deployment
+
+Sau khi deploy xong, truy cập URL trên và test:
+
+### ✅ Checklist Test:
+- [ ] Trang chủ load được (index.html)
+- [ ] Navigation bar hoạt động
+- [ ] Vào **Settings** → Add API key (test với Gemini API key)
+- [ ] Vào **Designer** → Chat với AI
+- [ ] Thử generate workflow
+- [ ] Export workflow JSON
+- [ ] Check console log (F12) xem có lỗi không
+
+---
+
+## 🔧 Troubleshooting
+
+### ❌ Lỗi: Permission denied
 ```bash
-mkdir -p pages assets/css assets/js/core assets/js/modules/designer assets/js/modules/generator assets/js/modules/library assets/js/utils assets/images/icons assets/templates examples docs
+# Kiểm tra remote URL
+git remote -v
+
+# Nếu sai, sửa lại
+git remote set-url origin https://github.com/sohoavn/workflow-static-app-ai.git
 ```
 
-### Bước 3: Copy nội dung files
-
-Tôi sẽ cung cấp nội dung từng file để bạn tạo thủ công.
-
----
-
-## 📋 DANH SÁCH FILES ĐÃ TẠO
-
-```
-Total: 12 files + README + .gitignore
-
-✅ index.html (5.8 KB)
-✅ README.md (5.9 KB)
-✅ .gitignore (541 B)
-✅ assets/css/main.css (7.5 KB)
-✅ assets/js/core/app.js (9.6 KB)
-✅ assets/js/core/api-key-manager.js (9.1 KB)
-✅ assets/js/core/gemini-client.js (12.4 KB)
-✅ assets/js/core/storage-manager.js (12.2 KB)
-✅ assets/js/utils/notification.js (7.5 KB)
-✅ assets/js/utils/file-handler.js (7.8 KB)
-✅ pages/settings.html (15.5 KB)
-✅ pages/designer.html (22.9 KB)
-✅ pages/generator.html (1.4 KB)
-✅ pages/library.html (1.5 KB)
-
-Total LOC: ~5,000 lines
-Total Size: ~123 KB (compressed)
-```
-
----
-
-## 📝 GIT COMMITS ĐÃ TẠO
-
-```
-f2c10e3 docs: add README and .gitignore
-9384d24 feat: complete Wave 1 - Core Infrastructure & Pages
-ccb687a feat: add Storage Manager and Notification System
-4aa971c feat: add Gemini Client with streaming support
-a468811 feat: implement Wave 1 Core Infrastructure (Part 1)
-```
-
-5 commits với messages rõ ràng theo Conventional Commits.
-
----
-
-## 🔍 KIỂM TRA SAU KHI PUSH
-
-### 1. GitHub Pages Setup
-
-```bash
-# Trên GitHub repo
-Settings → Pages
-Source: Deploy from branch
-Branch: main
-Folder: / (root)
-Save
-```
-
-Sau ~1 phút, app sẽ live tại:
-`https://sohoavn.github.io/workflow-static-app-ai/`
-
-### 2. Test Local
-
-```bash
-cd workflow-static-app-ai
-python3 -m http.server 8000
-```
-
-Mở: `http://localhost:8000`
-
-### 3. Checklist
-
-- [ ] Navigation works (Designer, Generator, Library, Settings)
-- [ ] Settings page: Can add API key
-- [ ] Designer page: Can type prompt
-- [ ] No console errors
-- [ ] All CDN libraries load
-
----
-
-## ⚠️ TROUBLESHOOTING
-
-### Problem 1: 404 on GitHub Pages
-
-**Giải pháp:**
+### ❌ Lỗi: GitHub Pages không hiển thị
 - Đợi 2-3 phút sau khi push
-- Check Settings → Pages có enable không
-- Clear browser cache
+- Kiểm tra Settings → Pages có enable không
+- Check repo có file `index.html` ở root không
 
-### Problem 2: CDN không load
-
-**Giải pháp:**
-- Check internet connection
-- Mở Developer Tools → Network tab
-- Xem CDN URLs có load không
-
-### Problem 3: API Key không lưu
-
-**Giải pháp:**
-- Check localStorage có enable không
-- Thử incognito mode
-- Check browser console có error không
+### ❌ Lỗi: API key không hoạt động
+- Vào Settings page
+- Add Gemini API key của bạn
+- Test key bằng nút "Test Key"
+- Nếu thành công sẽ thấy toast "API key is valid"
 
 ---
 
-## 📞 SUPPORT
+## 📊 Thông tin Repository
 
-Nếu có vấn đề:
-1. Check browser console (F12)
-2. Screenshot error message
-3. Báo lại để tôi support
-
----
-
-## ✅ NEXT STEPS SAU KHI PUSH
-
-1. **Verify GitHub Pages** deployed successfully
-2. **Add Gemini API key** trong Settings
-3. **Test workflow generation** trong Designer
-4. **Share link** với team/users
+```yaml
+Repository Name: workflow-static-app-ai
+Owner: sohoavn
+URL: https://github.com/sohoavn/workflow-static-app-ai
+GitHub Pages: https://sohoavn.github.io/workflow-static-app-ai/
+Tech Stack: HTML5, Vanilla JS, TailwindCSS, Gemini AI
+Storage: localStorage + IndexedDB
+Lines of Code: 4,619 LOC
+Wave 1: ✅ Complete (100%)
+```
 
 ---
 
-**BẠN SẴN SÀNG PUSH CHƯA?**
+## 🎯 Tiếp theo sau khi push xong
 
-Hãy cho tôi biết nếu cần hỗ trợ thêm! 🚀
+Sau khi bạn push code lên GitHub thành công, chúng ta sẽ:
+
+### Wave 2: Designer Module Enhancement (Weeks 3-5)
+- ✅ Step Editor Modal (thêm/sửa/xóa steps)
+- ✅ Form Builder (8 field types)
+- ✅ Workflow Validator
+- ✅ Visual Canvas (Mermaid diagram)
+- ✅ Domain Expert Prompts (6 industries)
+
+### Wave 3: Generator Module (Weeks 6-8)
+- ✅ Code Templates (HTML/JS/CSS)
+- ✅ State Machine Generator
+- ✅ Executor Builder
+- ✅ ZIP Packager
+
+### Wave 4: Library Module (Weeks 9-10)
+- ✅ Workflow CRUD
+- ✅ Industry Templates
+- ✅ Import/Export (JSON/MD/ZIP)
+
+### Wave 5: State Machine Engine (Weeks 11-12)
+- ✅ Level 3 Workflow Engine
+- ✅ Parallel Execution
+- ✅ Conditional Branching
+
+### Wave 6: Polish & Docs (Weeks 13-16)
+- ✅ Dark Mode
+- ✅ Responsive Design
+- ✅ Documentation
+- ✅ Performance Optimization
+
+---
+
+## 📞 Support
+
+Nếu gặp vấn đề gì, hãy:
+1. Check console log (F12)
+2. Check GitHub Actions tab (xem deployment status)
+3. Đọc WAVE1_SUMMARY.md để hiểu cấu trúc
+4. Xem README.md cho hướng dẫn chi tiết
+
+---
+
+## 🎉 Hoàn thành!
+
+Sau khi push xong, bạn hãy thông báo lại để chúng ta tiếp tục **Wave 2**! 🚀
+
+---
+
+**Created**: 2026-03-17  
+**Version**: Wave 1 Final  
+**Status**: Ready for Push ✅
