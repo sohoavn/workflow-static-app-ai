@@ -342,7 +342,9 @@ class Router {
    */
   loadPageScript(pageName) {
     const scripts = {
-      'settings': './assets/js/pages/settings-page.js'
+      'settings': './assets/js/pages/settings-page.js',
+      'designer': './assets/js/pages/designer-page.js',
+      '': './assets/js/pages/designer-page.js' // home page is designer
     };
     
     const scriptSrc = scripts[pageName];
@@ -351,26 +353,33 @@ class Router {
     }
     
     // Remove old script if exists
-    const oldScript = document.getElementById(`page-script-${pageName}`);
+    const oldScript = document.getElementById(`page-script-${pageName || 'home'}`);
     if (oldScript) {
       oldScript.remove();
     }
     
     // Load new script
     const script = document.createElement('script');
-    script.id = `page-script-${pageName}`;
+    script.id = `page-script-${pageName || 'home'}`;
     script.src = scriptSrc;
+    script.type = 'module'; // Designer uses ES modules
     script.onload = () => {
-      console.log(`✅ Loaded script for ${pageName}`);
+      console.log(`✅ Loaded script for ${pageName || 'home'}`);
       // Call page init if available
       if (pageName === 'settings' && window.SettingsPage) {
         setTimeout(() => {
           window.SettingsPage.init();
         }, 100);
+      } else if ((pageName === 'designer' || pageName === '') && window.DesignerPage) {
+        setTimeout(() => {
+          if (!window.designerPage) {
+            window.designerPage = new window.DesignerPage();
+          }
+        }, 100);
       }
     };
     script.onerror = () => {
-      console.error(`❌ Failed to load script for ${pageName}`);
+      console.error(`❌ Failed to load script for ${pageName || 'home'}`);
     };
     
     document.head.appendChild(script);
