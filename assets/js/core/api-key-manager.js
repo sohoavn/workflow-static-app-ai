@@ -27,6 +27,14 @@ class APIKeyManager {
   }
 
   /**
+   * Reload keys from localStorage (use when keys might have changed)
+   */
+  reloadKeys() {
+    this.keys = this.loadKeys();
+    console.log('🔄 Reloaded keys from localStorage');
+  }
+
+  /**
    * Save keys to localStorage
    */
   saveKeys() {

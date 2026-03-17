@@ -137,13 +137,23 @@ class DesignerPage {
     const input = document.getElementById('chat-input');
     const userMessage = input.value.trim();
 
-    if (!userMessage) return;
+    if (!userMessage) {
+      console.warn('⚠️ Empty message, skipping generation');
+      return;
+    }
+
+    // Reload keys from localStorage (in case they were added in Settings)
+    this.apiKeyManager.reloadKeys();
+    console.log(`🔑 Available keys: ${this.apiKeyManager.getAllKeys().length}`);
 
     // Check API keys
     if (!this.apiKeyManager.hasAvailableKeys()) {
+      console.error('❌ No API keys available');
       window.notificationManager.error('No API keys available. Please add keys in Settings.');
       return;
     }
+    
+    console.log('✅ Starting workflow generation...');
 
     // Add user message to chat
     this.addChatMessage(userMessage, 'user');
