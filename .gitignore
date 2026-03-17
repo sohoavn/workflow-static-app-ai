@@ -1,0 +1,49 @@
+# Ignore OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ignore editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Ignore logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore temporary files
+*.tmp
+*.temp
+.cache/
+
+# Ignore node_modules (if accidentally added)
+node_modules/
+
+# Ignore build output (future use)
+dist/
+build/
+out/
+
+# Ignore environment files
+.env
+.env.local
+.env.*.local
+
+# Ignore generated files
+generated-apps/
+
+# Ignore backup files
+*.bak
+*.backup
+*~
+
+# Keep empty directories
+!.gitkeep
