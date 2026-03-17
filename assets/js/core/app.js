@@ -327,10 +327,53 @@ class Router {
    * @param {string} pageName
    */
   initPage(pageName) {
+    // Load page-specific scripts
+    this.loadPageScript(pageName);
+    
     const event = new CustomEvent('page-loaded', { 
       detail: { page: pageName } 
     });
     window.dispatchEvent(event);
+  }
+
+  /**
+   * Load page-specific JavaScript
+   * @param {string} pageName
+   */
+  loadPageScript(pageName) {
+    const scripts = {
+      'settings': './assets/js/pages/settings-page.js'
+    };
+    
+    const scriptSrc = scripts[pageName];
+    if (!scriptSrc) {
+      return; // No script for this page
+    }
+    
+    // Remove old script if exists
+    const oldScript = document.getElementById(`page-script-${pageName}`);
+    if (oldScript) {
+      oldScript.remove();
+    }
+    
+    // Load new script
+    const script = document.createElement('script');
+    script.id = `page-script-${pageName}`;
+    script.src = scriptSrc;
+    script.onload = () => {
+      console.log(`✅ Loaded script for ${pageName}`);
+      // Call page init if available
+      if (pageName === 'settings' && window.SettingsPage) {
+        setTimeout(() => {
+          window.SettingsPage.init();
+        }, 100);
+      }
+    };
+    script.onerror = () => {
+      console.error(`❌ Failed to load script for ${pageName}`);
+    };
+    
+    document.head.appendChild(script);
   }
 
   /**
